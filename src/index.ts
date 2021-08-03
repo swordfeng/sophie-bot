@@ -48,7 +48,7 @@ async function handleRequest(request: Request) {
             }
             content = YAML.stringify(body)
         } else {
-            content = request.text()
+            content = await request.text()
         }
 
         let r = await tg('sendmessage', {
