@@ -12,7 +12,7 @@ addEventListener('fetch', event => {
 })
 
 async function handleRequest(request: Request) {
-    if (request.url.endsWith('/webhook') && request.method == 'POST') {
+    if (request.url.endsWith('/webhook_sophie') && request.method == 'POST') {
         let data = await request.json()
         if (data.message) {
             await handle_message(data.message)
@@ -20,6 +20,10 @@ async function handleRequest(request: Request) {
         return new Response(null, { status: 200 })
     } else {
         const token = request.url.split('/').slice(-1)[0]
+        if (!(/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/.test(token))) {
+            return fetch(request)
+        }
+
         if (!(await jwt.verify(token, SOPHIE_TOKEN))) {
             return new Response('Invalid token', { status: 401 })
         }
@@ -55,8 +59,8 @@ async function handleRequest(request: Request) {
         if (!r.ok) {
             return new Response('Failed to send the message', { status: 500 })
         }
+        return new Response(null, { status: 200 })
     }
-    return new Response(null, { status: 200 })
 }
 
 async function handle_message(d: any) {
